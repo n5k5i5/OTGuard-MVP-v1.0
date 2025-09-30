@@ -1,0 +1,11 @@
+id: examples.post.sysinfo
+name: Collect System Info (Example)
+version: 0.1.0
+type: post
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:SysInfoModule
+inputs: []
+outputs:
+  - name: sysinfo
+    type: dict

@@ -1,0 +1,17 @@
+id: examples.probe.portscan
+name: Port Scanner (Example)
+version: 0.1.0
+type: probe
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:PortScanModule
+inputs:
+  - name: targets
+    type: list[str]
+    required: true
+  - name: ports
+    type: list[int]
+    default: [22, 80, 443]
+outputs:
+  - name: open_ports
+    type: dict

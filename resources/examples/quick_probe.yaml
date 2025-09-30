@@ -1,0 +1,16 @@
+version: "1"
+name: "Quick Probe"
+vars:
+  targets: ["127.0.0.1"]
+steps:
+  - run:
+      module: "examples.probe.portscan"
+      with:
+        targets: "${vars.targets}"
+        ports: [22, 80, 443]
+    as: "scan"
+  - run:
+      module: "examples.post.sysinfo"
+    as: "sys"
+  - report:
+      include: ["scan", "sys"]
