@@ -15,7 +15,22 @@
 3. Guardrails validate inputs (e.g., targets must be private by default).
 4. Module is imported dynamically and executed in emulate mode by default.
 5. Metrics are persisted to `.runs/{id}.json`.
-6. Report generator converts a run into a basic HTML report.
+6. Report generator converts a run into a basic HTML report or an index.
+
+## Resource DSL (MVP)
+- Interpolation: `${path.to.value}` referencing previous step aliases or `vars.*`.
+- Steps:
+  - `run`: execute a module
+  - `report`: placeholder for report hints
+  - `set`: set a variable into `vars`
+  - `foreach`: loop over a list with `as` and a `do` body
+- Conditionals:
+  - `when`: supports simple forms:
+    - String path truthiness: `when: \"${alias.key}\"`
+    - Operators:
+      - `equals: [left, right]`
+      - `contains: [container, item]`
+  - All operands support interpolation.
 
 ## Safety
 - Lab-only defaults.

@@ -33,6 +33,30 @@ framework report show --last
 framework report index
 ```
 
+## Resource scripts: loops and conditionals
+```yaml
+version: "1"
+name: "Loop Probe"
+vars:
+  targets: ["127.0.0.1", "127.0.0.2"]
+steps:
+  - set: { name: ports, value: [22, 80] }
+  - foreach:
+      list: "${vars.targets}"
+      as: t
+      do:
+        - run:
+            module: examples.probe.portscan
+            with:
+              targets: "${t}"
+              ports: "${vars.ports}"
+          as: "scan_${t}"
+        - when: { contains: ["${scan_${t}.open_ports.${t}}", 80] }
+          run:
+            module: examples.post.sysinfo
+          as: "sys_${t}"
+```
+
 ## Sessions (optional)
 ```bash
 # Requires Docker installed for docker sessions
