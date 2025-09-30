@@ -27,7 +27,10 @@ app.add_typer(sessions_app, name="sessions")
 app.add_typer(resource_app, name="resource")
 app.add_typer(report_app, name="report")
 
-DEFAULT_MODULES_DIR = Path("modules")
+# Prefer local modules/ during development; fall back to bundled examples in package
+PKG_DIR = Path(__file__).resolve().parent.parent
+BUNDLED_MODULES_DIR = PKG_DIR / "bundled" / "modules"
+DEFAULT_MODULES_DIR = Path("modules") if Path("modules").exists() else BUNDLED_MODULES_DIR
 RUNS_DIR = Path(".runs")
 RUNS_DIR.mkdir(exist_ok=True)
 

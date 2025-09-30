@@ -26,6 +26,16 @@ Quick start
 - Scaffold a new module:
   framework modules init custom.probe.demo --name "Demo Probe"
 
+Publishing (GitHub & PyPI)
+- GitHub Release:
+  1) Bump version in pyproject.toml and CHANGELOG.md
+  2) Create a tag (e.g., v1.0.0) and push
+  3) Publish a GitHub Release from the tag
+- PyPI Publish:
+  - Configure repository secrets:
+    - PYPI_API_TOKEN: PyPI token with publish rights
+  - On publishing a GitHub Release, the workflow .github/workflows/publish.yml builds and uploads to PyPI
+
 Safety
 - Lab mode is ON by default (blocks public IPs). Use --unsafe to override in a lab environment only.
 - Example modules run in emulate mode by default.
