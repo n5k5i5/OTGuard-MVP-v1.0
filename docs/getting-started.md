@@ -1,4 +1,4 @@
-# Lab Security Framework (MVP Scaffold)
+# Lab Security Framework v1.0
 
 This repository is a safe, lab-first scaffold for a modular security testing framework.
 It ships with non-operational example modules and strong guardrails.
@@ -16,6 +16,9 @@ pip install -e .
 ```bash
 # Accept ethical use agreement
 framework init --agree
+
+# Check version
+framework --version
 
 # Explore modules
 framework modules list
@@ -67,6 +70,9 @@ framework sessions close <id>
 # Docker-backed (starts a container that sleeps)
 framework sessions create --type docker --image alpine:latest
 ```
+
+## License
+- MIT License. See LICENSE file.
 
 ## Safety
 - Lab mode is ON by default (public IPs are blocked).

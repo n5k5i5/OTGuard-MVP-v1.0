@@ -1,13 +1,14 @@
-Lab Security Framework (MVP Scaffold)
-=====================================
+Lab Security Framework v1.0
+===========================
 
 A safe, modular, lab-first security testing framework scaffold that focuses on
 developer experience, automation, and governance. Ships with non-operational
-example modules and strong guardrails.
+example modules and strong guardrails. CLI-only. No API is exposed.
 
 Quick start
 - Install: pip install -e .
 - Accept EULA: framework init --agree
+- Version: framework --version
 - List modules: framework modules list
 - Run a module:
   framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
@@ -29,8 +30,14 @@ Safety
 - Lab mode is ON by default (blocks public IPs). Use --unsafe to override in a lab environment only.
 - Example modules run in emulate mode by default.
 
+License
+- MIT License. See LICENSE file.
+
 Docs
 - docs/getting-started.md
 - docs/module-dev-guide.md
 - docs/architecture.md
 - docs/EULA.md
+
+Changelog
+- See CHANGELOG.md for release notes.

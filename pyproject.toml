@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lab-sec-framework"
-version = "0.1.0"
+version = "1.0.0"
 description = "A safe, modular security testing framework scaffold (lab-only by default)."
 authors = [{name = "Your Team"}]
 requires-python = ">=3.9"
@@ -12,6 +12,14 @@ dependencies = [
   "typer>=0.12",
   "pyyaml>=6.0.1",
   "rich>=13.7",
+]
+license = {file = "LICENSE"}
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Environment :: Console",
+  "Intended Audience :: Information Technology",
+  "Topic :: Security",
 ]
 
 [project.optional-dependencies]

@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Optional, List
+import importlib.metadata as importlib_metadata
 
 import typer
 from rich import print
@@ -72,6 +73,15 @@ def init(agree: bool = typer.Option(False, "--agree", help="Agree to the ethical
             print(f"Read EULA at {EULA_TEXT_PATH}. Rerun with --agree to accept.")
         else:
             print("No EULA file found. Rerun with --agree to accept default ethical use terms.")
+
+
+@app.command("--version")
+def version():
+    try:
+        v = importlib_metadata.version("lab-sec-framework")
+    except importlib_metadata.PackageNotFoundError:
+        v = "1.0.0"
+    print(v)
 
 
 @modules_app.command("list")
