@@ -28,6 +28,20 @@ framework resource run resources/examples/quick_probe.yaml
 
 # Generate and open report for last run
 framework report show --last
+
+# Generate runs index
+framework report index
+```
+
+## Sessions (optional)
+```bash
+# Requires Docker installed for docker sessions
+framework sessions create --type local
+framework sessions list
+framework sessions close <id>
+
+# Docker-backed (starts a container that sleeps)
+framework sessions create --type docker --image alpine:latest
 ```
 
 ## Safety

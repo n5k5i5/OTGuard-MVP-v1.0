@@ -15,10 +15,13 @@ Quick start
   framework resource run resources/examples/quick_probe.yaml
 - Show last report:
   framework report show --last
+- Generate runs index:
+  framework report index
 - Manage sessions:
   framework sessions create --type local
   framework sessions list
   framework sessions close <id>
+  framework sessions create --type docker --image alpine:latest   # requires Docker
 - Scaffold a new module:
   framework modules init custom.probe.demo --name "Demo Probe"
 

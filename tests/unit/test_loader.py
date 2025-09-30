@@ -9,3 +9,4 @@ def test_discover_examples():
     ids = {m["id"] for m in manifests}
     assert "examples.probe.portscan" in ids
     assert "examples.post.sysinfo" in ids
+    assert "examples.aux.nmap_import" in ids

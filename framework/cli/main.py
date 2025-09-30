@@ -12,6 +12,7 @@ from framework.core.metrics.collector import MetricsCollector
 from framework.core.report.generator import ReportGenerator
 from framework.core.safety.guardrails import SafetyGuard
 from framework.core.sessions.store import SessionStore
+from framework.core.sessions.docker_runtime import docker_available, run_container, stop_container
 
 app = typer.Typer(help="Lab Security Framework (MVP scaffold) - Lab-only by default.")
 
@@ -180,8 +181,13 @@ def sessions_create(
     image: Optional[str] = typer.Option(None, "--image", help="Docker image if type=docker"),
 ):
     meta = {}
-    if type_ == "docker" and image:
-        meta["image"] = image
+    if type_ == "docker":
+        if not docker_available():
+            print("Docker is not available on this system.")
+            raise typer.Exit(code=1)
+        img = image or "alpine:latest"
+        info = run_container(img, command="sleep 3600", detach=True)
+        meta.update(info)
     sess = sessions_store.create(type_, meta)
     print(f"Session created: {sess['id']} ({sess['type']})")
 
@@ -202,6 +208,18 @@ def sessions_list():
 def sessions_close(
     session_id: str = typer.Argument(...)
 ):
+    # attempt to stop docker if associated
+    sessions = sessions_store.list()
+    for s in sessions:
+        if s["id"] == session_id and s["state"] == "active":
+            meta = s.get("meta", {}) or {}
+            cid = meta.get("container_id")
+            if cid:
+                try:
+                    stop_container(cid)
+                except Exception:
+                    pass
+            break
     ok = sessions_store.close(session_id)
     if not ok:
         print(f"Session not found or not active: {session_id}")
@@ -223,6 +241,12 @@ def report_show(
         raise typer.Exit(code=1)
     report_path = reporter.generate_html(rid)
     print(f"Report: {report_path}")
+
+
+@report_app.command("index")
+def report_index():
+    path = reporter.generate_index()
+    print(f"Index: {path}")
 
 
 def _parse_kv_list(items: List[str]) -> dict:

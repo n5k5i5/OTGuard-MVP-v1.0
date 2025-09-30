@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 
 class ReportGenerator:
@@ -14,6 +14,20 @@ class ReportGenerator:
         data = json.loads(path.read_text(encoding="utf-8"))
         html = self._render_html(data)
         out = self.runs_dir / f"{run_id}.html"
+        out.write_text(html, encoding="utf-8")
+        return out
+
+    def generate_index(self, limit: int = 50) -> Path:
+        runs: List[dict] = []
+        for jf in sorted(self.runs_dir.glob("*.json")):
+            try:
+                data = json.loads(jf.read_text(encoding="utf-8"))
+                runs.append(data)
+            except Exception:
+                continue
+        runs = sorted(runs, key=lambda x: x.get("started_at", 0), reverse=True)[:limit]
+        html = self._render_index(runs)
+        out = self.runs_dir / "index.html"
         out.write_text(html, encoding="utf-8")
         return out
 
@@ -46,5 +60,38 @@ class ReportGenerator:
   <pre>{json.dumps(data.get('error'), indent=2)}</pre>
   <p>Started: {data.get('started_at')}</p>
   <p>Ended: {data.get('ended_at')}</p>
+</body>
+</html>"""
+
+    def _render_index(self, runs: List[dict]) -> str:
+        rows = "\n".join(
+            f"<tr><td><a href='{r.get('id')}.html'>{r.get('id')}</a></td>"
+            f"<td>{r.get('kind')}</td>"
+            f"<td>{r.get('manifest')}</td>"
+            f"<td>{'SUCCESS' if r.get('success') else 'FAILED'}</td>"
+            f"<td>{r.get('started_at')}</td>"
+            f"<td>{r.get('ended_at')}</td></tr>"
+            for r in runs
+        )
+        return f"""<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Runs Index</title>
+  <style>
+    body {{ font-family: Arial, sans-serif; margin: 2rem; }}
+    table {{ border-collapse: collapse; width: 100%; }}
+    th, td {{ border: 1px solid #ddd; padding: 8px; }}
+    tr:nth-child(even) {{ background-color: #f9f9f9; }}
+  </style>
+</head>
+<body>
+  <h1>Recent Runs</h1>
+  <table>
+    <thead><tr><th>ID</th><th>Kind</th><th>Manifest</th><th>Status</th><th>Started</th><th>Ended</th></tr></thead>
+    <tbody>
+      {rows}
+    </tbody>
+  </table>
 </body>
 </html>"""

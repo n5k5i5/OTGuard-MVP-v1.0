@@ -1,0 +1,14 @@
+id: examples.aux.nmap_import
+name: Import Nmap XML (Example)
+version: 0.1.0
+type: auxiliary
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:NmapImportModule
+inputs:
+  - name: path
+    type: str
+    required: true
+outputs:
+  - name: hosts
+    type: list[dict]
