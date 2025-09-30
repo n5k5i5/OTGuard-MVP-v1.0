@@ -22,7 +22,11 @@ classifiers = [
   "Intended Audience :: Information Technology",
   "Topic :: Security",
 ]
-urls = { "Homepage" = "https://github.com/your-org/lab-sec-framework" }
+urls = { 
+  "Homepage" = "https://github.com/your-org/lab-sec-framework",
+  "Repository" = "https://github.com/your-org/lab-sec-framework",
+  "Issues" = "https://github.com/your-org/lab-sec-framework/issues"
+}
 
 [project.optional-dependencies]
 dev = [

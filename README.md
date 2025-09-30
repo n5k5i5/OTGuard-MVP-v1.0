@@ -1,6 +1,11 @@
 Lab Security Framework v1.0
 ===========================
 
+[![CI](https://github.com/your-org/lab-sec-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/lab-sec-framework/actions/workflows/ci.yml)
+[![Publish](https://github.com/your-org/lab-sec-framework/actions/workflows/publish.yml/badge.svg)](https://github.com/your-org/lab-sec-framework/actions/workflows/publish.yml)
+[![PyPI version](https://img.shields.io/pypi/v/lab-sec-framework.svg)](https://pypi.org/project/lab-sec-framework/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A safe, modular, lab-first security testing framework scaffold that focuses on
 developer experience, automation, and governance. Ships with non-operational
 example modules and strong guardrails. CLI-only. No API is exposed.
