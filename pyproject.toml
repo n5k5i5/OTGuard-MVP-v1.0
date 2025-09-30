@@ -14,5 +14,10 @@ dependencies = [
   "rich>=13.7",
 ]
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4",
+]
+
 [project.scripts]
 framework = "framework.cli.main:app"

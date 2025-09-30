@@ -14,9 +14,19 @@ pip install -e .
 
 ## First run
 ```bash
+# Accept ethical use agreement
+framework init --agree
+
+# Explore modules
 framework modules list
+
+# Execute example module (emulated)
 framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
+
+# Run resource script
 framework resource run resources/examples/quick_probe.yaml
+
+# Generate and open report for last run
 framework report show --last
 ```
 

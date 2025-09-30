@@ -7,6 +7,7 @@ example modules and strong guardrails.
 
 Quick start
 - Install: pip install -e .
+- Accept EULA: framework init --agree
 - List modules: framework modules list
 - Run a module:
   framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
@@ -14,6 +15,12 @@ Quick start
   framework resource run resources/examples/quick_probe.yaml
 - Show last report:
   framework report show --last
+- Manage sessions:
+  framework sessions create --type local
+  framework sessions list
+  framework sessions close <id>
+- Scaffold a new module:
+  framework modules init custom.probe.demo --name "Demo Probe"
 
 Safety
 - Lab mode is ON by default (blocks public IPs). Use --unsafe to override in a lab environment only.
@@ -23,3 +30,4 @@ Docs
 - docs/getting-started.md
 - docs/module-dev-guide.md
 - docs/architecture.md
+- docs/EULA.md
