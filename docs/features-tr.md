@@ -9,19 +9,22 @@ Bu proje, güvenli ve laboratuvar odaklı bir güvenlik testi iskeletidir (CLI-o
   - Örnek modüller (lab-safe): Port Taraması, Sistem Bilgisi, Nmap XML içe aktarma
 - Otomasyon (Resource DSL)
   - YAML tabanlı adımlar, değişkenler, koşullar (when), döngüler (foreach)
-  - Basit şablonlama/interpolasyon
+  - Interpolasyon ve dinamik alias desteği
 - Raporlama ve metrikler
-  - Çalıştırma başına JSON/HTML rapor
-  - Çalıştırma indeksi (.runs/index.html)
+  - Çalıştırma başına JSON/HTML rapor; çalıştırma indeksi (.runs/index.html)
+  - SQLite metrik veritabanı (.runs/metrics.db)
+  - CLI JSONL logları (.runs/app.log)
 - Oturum yönetimi (stub)
   - Yerel ve Docker tabanlı oturumlar
 - Güvenlik ve yönetişim
   - EULA (EN/TR/RU) onay akışı
   - Guardrails: Lab modu ve public IP blokajı
+  - Organizasyon onay kapısı (OrgGate) — zorunlu
+  - Rapor ikinci-faktör (ReportGate) — opsiyonel
 - Paketleme ve dağıtım
   - PyPI/GitHub yayın iş akışları, paket içine gömülü örnek modüller
 - Dokümantasyon
-  - Başlangıç rehberi, mimari, modül geliştirme kılavuzu
+  - Başlangıç rehberi, mimari, modül geliştirme kılavuzu, politika (OrgGate)
 
 ## v2.0 ile Planlananlar
 

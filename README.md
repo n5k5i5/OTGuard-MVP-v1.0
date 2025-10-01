@@ -1,6 +1,8 @@
 Lab Security Framework v1.0
 ===========================
 
+Languages: [English](README.en.md) | [Türkçe](README.tr.md) | [Русский](README.ru.md)
+
 [![CI](https://github.com/your-org/lab-sec-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/lab-sec-framework/actions/workflows/ci.yml)
 [![Publish](https://github.com/your-org/lab-sec-framework/actions/workflows/publish.yml/badge.svg)](https://github.com/your-org/lab-sec-framework/actions/workflows/publish.yml)
 [![PyPI version](https://img.shields.io/pypi/v/lab-sec-framework.svg)](https://pypi.org/project/lab-sec-framework/)
