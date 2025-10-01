@@ -92,6 +92,18 @@ class ResourceRunner:
         raise ValueError(f"Unknown step: {step}")
 
     def _render(self, data, ctx):
+        """
+        Recursively render a nested data structure by interpolating any strings using the provided context.
+        
+        Strings are processed through the instance's interpolation logic; lists and dictionaries are traversed and rebuilt with their elements/values rendered recursively. Non-collection, non-string values are returned unchanged.
+        
+        Parameters:
+            data: The value to render — may be a string, list, dict, or any other object.
+            ctx: The rendering context used for interpolation (variable lookup and resolution).
+        
+        Returns:
+            The same structure as `data` with all string values replaced by their interpolated results.
+        """
         if isinstance(data, str):
             return self._interpolate(data, ctx)
         if isinstance(data, list):
@@ -102,6 +114,16 @@ class ResourceRunner:
 
     def _interpolate(self, s: str, ctx):
         # If the whole string is a single token, resolve it (support nested tokens inside)
+        """
+        Interpolate `${...}` tokens in a string using the provided context and return the resolved value.
+        
+        Parameters:
+            s (str): Input string containing zero or more `${...}` tokens. If the entire string is a single token, the function will resolve and return the referenced value (which may be a non-string).
+            ctx: Context used for resolving paths referenced by tokens.
+        
+        Returns:
+            The resolved value for a single-token string (which can be any type), or a string with all `${...}` tokens replaced by their resolved textual representations.
+        """
         if s.startswith("${") and s.endswith("}"):
             inner = s[2:-1]
             inner_resolved = self._interpolate(inner, ctx) if isinstance(inner, str) else inner
@@ -136,6 +158,16 @@ class ResourceRunner:
         return out
 
     def _resolve_path(self, path: str, ctx):
+        """
+        Resolve a dot-separated path against the provided context and return the referenced value.
+        
+        Parameters:
+            path (str): Dot-separated sequence of keys (e.g., "vars.user.name") identifying the value to retrieve.
+            ctx: Mapping (typically the current execution context) to traverse using the keys in `path`.
+        
+        Returns:
+            The value found at the specified path within `ctx`.
+        """
         cur = ctx
         for p in path.split("."):
             cur = cur[p]
