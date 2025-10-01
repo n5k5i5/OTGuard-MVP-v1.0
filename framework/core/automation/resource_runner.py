@@ -1,7 +1,6 @@
 import json
-from copy import deepcopy
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 
 import yaml
 
@@ -83,8 +82,9 @@ class ResourceRunner:
             module.prepare({"emulate": True})
             result = module.execute(session=None)
             result = module.postprocess(result)
-            alias = step.get("as", mod_id)
-            ctx[alias] = result
+            alias_tpl = step.get("as", mod_id)
+            alias = self._render(alias_tpl, ctx) if isinstance(alias_tpl, str) else alias_tpl
+            ctx[str(alias)] = result
             return
         if "report" in step:
             # still a no-op in runner; reports are generated via CLI
@@ -93,28 +93,56 @@ class ResourceRunner:
 
     def _render(self, data, ctx):
         if isinstance(data, str):
-            return self._render_str(data, ctx)
+            return self._interpolate(data, ctx)
         if isinstance(data, list):
             return [self._render(x, ctx) for x in data]
         if isinstance(data, dict):
             return {k: self._render(v, ctx) for k, v in data.items()}
         return data
 
-    def _render_str(self, s: str, ctx):
-        # very small interpolation of ${path.to.value}
-        if s.startswith("${") and s.endswith("}"):
-            path = s[2:-1].split(".")  # remove ${ and }
-            cur = ctx
-            for p in path:
-                cur = cur[p]
-            return cur
-        return s
+    def _interpolate(self, s: str, ctx):
+        # Replace occurrences of ${...} with resolved values.
+        # If string is exactly a single ${...}, return the resolved object; else return the string with substitutions.
+        if "${" not in s:
+            return s
+        parts: List[Tuple[str, bool]] = []
+        out = ""
+        i = 0
+        single_token = False
+        while i < len(s):
+            start = s.find("${", i)
+            if start == -1:
+                out += s[i:]
+                break
+            out += s[i:start]
+            end = s.find("}", start + 2)
+            if end == -1:
+                # no closing brace, treat rest as literal
+                out += s[start:]
+                break
+            token = s[start + 2 : end]
+            value = self._resolve_path(token, ctx)
+            if out == "" and end == len(s) - 1 and i == 0:
+                # whole string is a single token
+                single_token = True
+            out += str(value)
+            i = end + 1
+        if single_token and out and not ("${" in s or "}" in s):
+            # Return resolved object if it was a single token and not coerced to string
+            return self._resolve_path(s[2:-1], ctx)
+        return out
+
+    def _resolve_path(self, path: str, ctx):
+        cur = ctx
+        for p in path.split("."):
+            cur = cur[p]
+        return cur
 
     def _eval_when(self, expr, ctx) -> bool:
         # expr can be a truthy path string like "${alias.key}"
         # or a dict with simple operators: equals, contains
         if isinstance(expr, str):
-            val = self._render_str(expr, ctx)
+            val = self._render(expr, ctx)
             return bool(val)
         if isinstance(expr, dict):
             if "equals" in expr:
