@@ -46,6 +46,14 @@ EULA_TEXT_PATH = Path("docs") / "EULA.md"
 
 
 def _version_callback(value: bool):
+    """
+    Prints the installed package version and exits the CLI when `value` is True.
+    
+    If the installed package "lab-sec-framework" can be found, its version string is printed; otherwise the fallback version "1.0.0" is printed before exiting.
+    
+    Parameters:
+        value (bool): Trigger flag — when `True`, print the version and terminate the application; when `False`, do nothing.
+    """
     if value:
         try:
             v = importlib_metadata.version("lab-sec-framework")
@@ -63,6 +71,21 @@ def main(
     lang: str = typer.Option("en", "--lang", help="EULA language: en|tr|ru"),
     version: bool = typer.Option(False, "--version", "-V", help="Show version and exit", callback=_version_callback, is_eager=True),
 ):
+    """
+    Initialize CLI context, apply lab-mode defaults, record EULA agreement, and enforce EULA gating.
+    
+    Sets ctx.obj with runtime flags, optionally records the user's EULA language and acceptance by writing to run files, and exits the program with an error if the EULA has not been accepted.
+    
+    Parameters:
+        ctx: Typer context for the running CLI command.
+        lab: When true, enable lab-only defaults (restricts public targets).
+        agree: If true, record acceptance of the ethical use agreement.
+        lang: Language code for the EULA summary and recorded acceptance (e.g., "en", "tr", "ru").
+        version: If provided, trigger version display and exit (handled by the option callback).
+    
+    Raises:
+        typer.Exit: If the EULA has not been accepted, exits with a non-zero code after showing the notice.
+    """
     ctx.obj = {"lab": lab}
     if lab:
         print("[bold yellow]Lab mode is ON[/bold yellow] - public targets are blocked by default.")
@@ -86,6 +109,15 @@ def init(
     agree: bool = typer.Option(False, "--agree", help="Agree to the ethical use EULA"),
     lang: str = typer.Option("en", "--lang", help="EULA language: en|tr|ru"),
 ):
+    """
+    Initialize the CLI's EULA acceptance state, optionally recording the user's agreement and preferred language.
+    
+    When called with agree=True, records acceptance and the provided language, and prints a confirmation message. When called without agreement, prints guidance pointing to the EULA text if present or instructions to accept the default terms.
+    
+    Parameters:
+        agree (bool): If true, record that the user has accepted the EULA.
+        lang (str): Language code to record for the EULA acceptance (e.g., "en", "tr", "ru").
+    """
     app_logger.log("command", {"name": "init", "agree": agree, "lang": lang})
     if agree:
         (RUNS_DIR / ".eula_lang").write_text(lang, encoding="utf-8")
@@ -102,6 +134,14 @@ def init(
 def modules_list(
     modules_dir: Path = typer.Option(DEFAULT_MODULES_DIR, exists=True, file_okay=False),
 ):
+    """
+    List discovered modules in the given modules directory and print a formatted table of their metadata.
+    
+    The table includes the module ID, name, type, version, and safety level for each discovered module.
+    
+    Parameters:
+    	modules_dir (Path): Directory to search for module manifests and definitions.
+    """
     app_logger.log("command", {"name": "modules list", "modules_dir": str(modules_dir)})
     loader = ModuleLoader([modules_dir])
     loaded = loader.discover()
@@ -125,6 +165,16 @@ def modules_init(
     type_: str = typer.Option("probe", "--type", help="probe|post|auxiliary"),
     out_dir: Path = typer.Option(DEFAULT_MODULES_DIR, "--out", help="Base modules directory"),
 ):
+    """
+    Create a scaffold for a new module by writing a manifest (module.yaml) and a starter implementation (module.py) into a directory derived from `module_id`.
+    
+    Parameters:
+    	module_id (str): Dot-separated module identifier (e.g., "custom.probe.demo") used to create the folder structure and manifest `id`.
+    	name (str | None): Human-friendly name to include in the manifest; defaults to `module_id` when omitted.
+    	type_ (str): Module type to record in the manifest; commonly "probe", "post", or "auxiliary".
+    	out_dir (Path): Base directory where the module folder will be created; the final path is out_dir/<module_id with dots as slashes>.
+    
+    """
     app_logger.log("command", {"name": "modules init", "module_id": module_id, "type": type_, "out_dir": str(out_dir)})
     parts = module_id.split(".")
     folder = out_dir / Path("/".join(parts))
@@ -162,6 +212,22 @@ def run_module(
     emulate: bool = typer.Option(True, "--emulate/--no-emulate", help="Run module in emulation mode if supported"),
     unsafe: bool = typer.Option(False, "--unsafe", help="Bypass guardrails (logged)"),
 ):
+    """
+    Run a module by manifest ID with provided input key/value pairs and print its JSON result.
+    
+    Loads the module manifest from the given modules directory, validates and prepares the module, executes its lifecycle (validate, prepare, execute, postprocess), records run metrics, and prints the final result as formatted JSON. Metrics and guardrail checks are applied; module teardown is attempted regardless of outcome.
+    
+    Parameters:
+        module_id (str): Module manifest ID to run.
+        with_kv (List[str] | None): List of `key=value` strings to supply as module inputs; values will be JSON-decoded when possible.
+        modules_dir (Path): Directory to search for module manifests.
+        emulate (bool): If true, run the module in emulation mode when supported.
+        unsafe (bool): If true, bypass safety guardrail validation (the bypass is logged).
+    
+    Raises:
+        typer.BadParameter: If the specified module ID is not found.
+        Exception: Re-raises any exception raised during module execution after recording metrics.
+    """
     app_logger.log("command", {"name": "run", "module_id": module_id, "emulate": emulate, "unsafe": unsafe})
     loader = ModuleLoader([modules_dir])
     manifest = loader.get_manifest_by_id(module_id)
@@ -196,6 +262,14 @@ def resource_run(
     modules_dir: Path = typer.Option(DEFAULT_MODULES_DIR, exists=True, file_okay=False),
     unsafe: bool = typer.Option(False, "--unsafe", help="Bypass guardrails (logged)"),
 ):
+    """
+    Execute a resource script or file and print the resulting run identifier.
+    
+    Parameters:
+        path (Path): Filesystem path to the resource script to execute.
+        modules_dir (Path): Directory used to discover modules referenced by the resource.
+        unsafe (bool): If True, bypass safety guardrails for this execution (the bypass is recorded in logs).
+    """
     app_logger.log("command", {"name": "resource run", "path": str(path), "unsafe": unsafe})
     loader = ModuleLoader([modules_dir])
     runner = ResourceRunner(loader=loader, metrics=metrics, guard=guard, unsafe=unsafe)
@@ -208,6 +282,18 @@ def sessions_create(
     type_: str = typer.Option("local", "--type", help="local|docker"),
     image: Optional[str] = typer.Option(None, "--image", help="Docker image if type=docker"),
 ):
+    """
+    Create a new session either locally or in a Docker container.
+    
+    Creates a session record in the session store and prints the created session ID. If `type_` is "docker", a container will be started (using `image` or "alpine:latest") and its metadata stored on the session.
+    
+    Parameters:
+        type_ (str): Session type, either "local" or "docker".
+        image (Optional[str]): Docker image to use when `type_` is "docker"; defaults to "alpine:latest" when omitted.
+    
+    Raises:
+        typer.Exit: If `type_` is "docker" but Docker is not available on the system.
+    """
     app_logger.log("command", {"name": "sessions create", "type": type_, "image": image})
     meta = {}
     if type_ == "docker":
@@ -223,6 +309,11 @@ def sessions_create(
 
 @sessions_app.command("list")
 def sessions_list():
+    """
+    Display the current sessions in a tabular format on stdout.
+    
+    Each row represents a session from the session store with columns: ID, Type, State, and Meta (JSON-encoded).
+    """
     app_logger.log("command", {"name": "sessions list"})
     table = Table(title="Sessions")
     table.add_column("ID")
@@ -238,6 +329,14 @@ def sessions_list():
 def sessions_close(
     session_id: str = typer.Argument(...)
 ):
+    """
+    Close the session identified by `session_id`, stopping its associated Docker container if one is recorded.
+    
+    Attempts to stop a linked container when the session is active; ignores errors from container stop. If the session cannot be found or is not active, prints an error and exits with status code 1. On success, prints a confirmation message.
+    
+    Parameters:
+        session_id (str): Identifier of the session to close.
+    """
     app_logger.log("command", {"name": "sessions close", "session_id": session_id})
     # attempt to stop docker if associated
     sessions = sessions_store.list()
@@ -263,6 +362,15 @@ def report_show(
     last: bool = typer.Option(True, "--last/--no-last"),
     run_id: Optional[str] = typer.Option(None, help="Specific run id to show"),
 ):
+    """
+    Generate and print an HTML report for a run.
+    
+    If `last` is true, the most recent run ID is used; otherwise `run_id` is used. Exits with a non-zero status if no run ID is available. Logs the command invocation and prints the path to the generated HTML report.
+    
+    Parameters:
+        last (bool): Use the latest run when true; ignored if false.
+        run_id (Optional[str]): Specific run ID to generate a report for (used only when `last` is false).
+    """
     if last:
         rid = metrics.latest_run_id()
     else:
@@ -277,6 +385,11 @@ def report_show(
 
 @report_app.command("index")
 def report_index():
+    """
+    Generate the report index for all runs and print its filesystem path.
+    
+    Calls the global report generator to create an index (typically HTML) for available run reports and prints the resulting path to stdout.
+    """
     app_logger.log("command", {"name": "report index"})
     path = reporter.generate_index()
     print(f"Index: {path}")
@@ -284,6 +397,11 @@ def report_index():
 
 @app.command("about")
 def about():
+    """
+    Display a short Turkish feature summary for the application.
+    
+    Logs the about command invocation and prints a concise Turkish-language list of key features to standard output.
+    """
     app_logger.log("command", {"name": "about"})
     print("Özellikler (TR) - kısa özet:")
     print("- Modüler mimari ve modül SDK'sı")
@@ -296,6 +414,18 @@ def about():
 
 
 def _parse_kv_list(items: List[str]) -> dict:
+    """
+    Parse a list of "key=value" strings into a dictionary, decoding JSON values when possible.
+    
+    Parameters:
+        items (List[str]): Iterable of strings each in the form "key=value".
+    
+    Returns:
+        dict: Mapping of keys to parsed values; each value is the result of JSON decoding when valid, otherwise the original string.
+    
+    Raises:
+        typer.BadParameter: If any item does not contain an '=' separator.
+    """
     out = {}
     for item in items:
         if "=" not in item:
