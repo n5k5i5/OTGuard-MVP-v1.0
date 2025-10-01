@@ -61,21 +61,31 @@ Organizasyon onayı (zorunlu)
   1) Organizasyon başlat: framework org init --name "ACME" --domain acme.com --email secops@acme.com
   2) Onay e-postasındaki doğrulama kodunu (token) alın
      - SMTP yapılandırılmadıysa token CLI’da gösterilir (manuel paylaşım)
+     - (Opsiyonel) Tıklanabilir link için:
+       - Dahili doğrulama sunucusu: framework org serve --host 0.0.0.0 --port 8080
+       - E-postaya link eklemek için ORG_VERIFY_BASE_URL'i http://<host>:8080/verify olarak ayarlayın
   3) Doğrulama: framework org verify --token <TOKEN>
 - Durumu görüntüle: framework org status
 - Sıfırlama (gerekirse): framework org reset --confirm
 
-SMTP yapılandırması (opsiyonel; e-posta göndermek için)
-- Ortam değişkenleri:
+SMTP/Webhook yapılandırması (opsiyonel)
+- SMTP ortam değişkenleri:
   - SMTP_HOST, SMTP_PORT (varsayılan 587), SMTP_USER, SMTP_PASS, SMTP_FROM, SMTP_TLS (true/false)
+  - ORG_VERIFY_BASE_URL (opsiyonel; e-postaya tıklanabilir doğrulama linki ekler)
+- Webhook:
+  - ORG_WEBHOOK_URL (opsiyonel; doğrulama isteği JSON payload ile bildirilir)
 
 Temel komutlar
 - Modül listeleme: framework modules list
 - Örnek modül çalıştırma (emüle): framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
 - Resource (otomasyon) çalıştırma: framework resource run resources/examples/quick_probe.yaml
 - Raporlar:
-  - Son rapor: framework report show --last
-  - Tüm çalıştırmaların indeksi: framework report index
+  - (Opsiyonel ikinci-faktör) Koruma anahtarını üretin: framework report gate-set
+  - Son rapor: framework report show --last --report-token <TOKEN>
+  - Tüm çalıştırmaların indeksi: framework report index --report-token <TOKEN>
+  - Koruma durumunu yönetme:
+    - framework report gate-status
+    - framework report gate-disable
 - Oturumlar:
   - Oluştur: framework sessions create --type local
   - Docker (opsiyonel): framework sessions create --type docker --image alpine:latest

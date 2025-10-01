@@ -21,10 +21,11 @@ class OrgGate:
     }
     """
 
-    def __init__(self, runs_dir: Path, emailer=None):
+    def __init__(self, runs_dir: Path, emailer=None, webhook=None):
         self.runs_dir = runs_dir
         self.path = self.runs_dir / "org.json"
         self.emailer = emailer
+        self.webhook = webhook
 
     def is_verified(self) -> bool:
         data = self._load()
@@ -56,6 +57,11 @@ class OrgGate:
                 self.emailer.send_verification(email, name, token)
             except Exception:
                 # fail-closed: do not verify automatically; token can be used via CLI
+                pass
+        if getattr(self, "webhook", None) is not None:
+            try:
+                self.webhook.notify_verification(name, domain, email, token)
+            except Exception:
                 pass
         return token
 

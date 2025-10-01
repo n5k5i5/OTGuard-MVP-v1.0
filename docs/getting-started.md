@@ -62,24 +62,35 @@ framework org init --name "ACME" --domain acme.com --email secops@acme.com
 ```
 - SMTP yapılandırıldıysa onay e-postası gönderilir.
 - SMTP yoksa token CLI’da gösterilir (manuel paylaşım için).
+- (Opsiyonel) Webhook bildirimi: `ORG_WEBHOOK_URL` ayarlanırsa JSON POST ile bilgilendirme yapılır.
 
-2) Token ile doğrulama:
+2) Tıklanabilir link ile doğrulama (opsiyonel):
+```bash
+# Dahili doğrulama HTTP sunucusu
+framework org serve --host 0.0.0.0 --port 8080
+```
+- E-postaya link eklemek için `ORG_VERIFY_BASE_URL` ortam değişkenini `http://<host>:8080/verify` olarak ayarlayın.
+- Link: `http://<host>:8080/verify?token=<TOKEN>`
+
+3) Token ile doğrulama (CLI):
 ```bash
 framework org verify --token <TOKEN>
 ```
 
-3) Durumu görüntüleme ve sıfırlama:
+4) Durumu görüntüleme ve sıfırlama:
 ```bash
 framework org status
 framework org reset --confirm
 ```
 
-### SMTP yapılandırması (opsiyonel)
+### SMTP/Webhook yapılandırması (opsiyonel)
 Aşağıdaki ortam değişkenlerini ayarlayın:
 - SMTP_HOST, SMTP_PORT (varsayılan 587)
 - SMTP_USER, SMTP_PASS
 - SMTP_FROM (varsayılan SMTP_USER)
 - SMTP_TLS (true/false; varsayılan true)
+- ORG_VERIFY_BASE_URL (opsiyonel; e-postaya doğrulama linki ekler)
+- ORG_WEBHOOK_URL (opsiyonel; webhook bildirimi)
 
 ## Temel kullanım
 ```bash
@@ -93,8 +104,14 @@ framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22
 framework resource run resources/examples/quick_probe.yaml
 
 # Raporlar
-framework report show --last
-framework report index
+# (Opsiyonel) İkinci-faktör koruması
+framework report gate-set            # token üretir ve gösterir
+framework report gate-status         # durum
+framework report gate-disable        # devre dışı
+
+# Rapor üretimi
+framework report show --last --report-token <TOKEN>
+framework report index --report-token <TOKEN>
 
 # Oturumlar (opsiyonel)
 framework sessions create --type local

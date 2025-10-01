@@ -8,8 +8,16 @@ Bu mekanizma, yazılımın kullanılmasından önce şirket/organizasyon bilgisi
   - Zorunlu alanlar: `--name`, `--domain`, `--email`
   - Bir doğrulama belirteci (token) üretilir ve SHA-256 özeti `.runs/org.json` içinde saklanır.
   - SMTP yapılandırılmışsa e-posta ile token gönderilir; değilse token CLI’da yazdırılır.
+  - (Opsiyonel) Webhook bildirimi: `ORG_WEBHOOK_URL` ayarlıysa JSON payload ile bir web kancasına bildirim yapılır.
 
 - Onaylı kişi `framework org verify --token <TOKEN>` komutunu çalıştırarak onayı tamamlar.
+  - (Opsiyonel) Tıklanabilir bağlantı:
+    - E-posta içinde link istiyorsanız `ORG_VERIFY_BASE_URL` ortam değişkenini `http(s)://<host>:<port>/verify` olarak ayarlayın.
+    - Ardından aşağıdaki dahili HTTP sunucuyu çalıştırın:
+      ```bash
+      framework org serve --host 0.0.0.0 --port 8080
+      ```
+    - E-postaya `http://<host>:8080/verify?token=<TOKEN>` linki eklenir.
   - Onaylandıktan sonra `status: "verified"` olur ve sistem komutları kullanılabilir.
 
 - Durum görüntüleme ve sıfırlama:
@@ -21,13 +29,17 @@ Bu mekanizma, yazılımın kullanılmasından önce şirket/organizasyon bilgisi
 - EULA kabulünden sonra, sistemde `org verify` tamamlanmadan core komutlar (modules, run, resource, report, sessions vb.) engellenir.
 - İzinli komutlar: `help`, `init`, `org *`, `about`.
 
-## SMTP Yapılandırması (opsiyonel)
+## SMTP ve Webhook Yapılandırması (opsiyonel)
 
-Aşağıdaki ortam değişkenleri ile SMTP sunucusu ayarlanır:
+SMTP için ortam değişkenleri:
 - SMTP_HOST, SMTP_PORT (varsayılan 587)
 - SMTP_USER, SMTP_PASS
 - SMTP_FROM (varsayılan SMTP_USER)
 - SMTP_TLS (`true|false`, varsayılan `true`)
+- ORG_VERIFY_BASE_URL (opsiyonel; e-postaya tıklanabilir doğrulama linki ekler)
+
+Webhook için:
+- ORG_WEBHOOK_URL (opsiyonel; JSON POST ile token bildirimi)
 
 SMTP ayarlanmadıysa, token e-posta ile gidemez; CLI üzerinde gösterilir ve manuel paylaşım yapılabilir.
 
@@ -39,5 +51,5 @@ SMTP ayarlanmadıysa, token e-posta ile gidemez; CLI üzerinde gösterilir ve ma
 ## Güvenlik Notları
 
 - Token gizli tutulmalıdır. Yanlış ellerde yetkisiz onay verilmesine yol açabilir.
-- SMTP kimlik bilgilerini güvenli şekilde (ör. env/secret manager) saklayın.
+- SMTP ve webhook kimlik bilgilerini güvenli bir şekilde (ör. env/secret manager) saklayın.
 - Bu kapı, **fail-closed** yaklaşımıyla tasarlanmıştır: Onay olmadan kritik komutlar çalışmaz.

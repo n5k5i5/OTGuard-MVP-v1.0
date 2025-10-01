@@ -16,7 +16,10 @@ from framework.core.safety.guardrails import SafetyGuard
 from framework.core.sessions.store import SessionStore
 from framework.core.sessions.docker_runtime import docker_available, run_container, stop_container
 from framework.core.policy.org_gate import OrgGate
+from framework.core.policy.report_gate import ReportGate
+from framework.core.policy.org_server import OrgHTTPServer
 from framework.core.notify.emailer import Emailer
+from framework.core.notify.webhook import WebhookNotifier
 
 app = typer.Typer(help="Lab Security Framework (MVP scaffold) - Lab-only by default.")
 
@@ -47,7 +50,10 @@ sessions_store = SessionStore(RUNS_DIR / "sessions.json")
 
 # Org gate
 emailer = Emailer()
-org_gate = OrgGate(RUNS_DIR, emailer=emailer)
+webhook = WebhookNotifier()
+org_gate = OrgGate(RUNS_DIR, emailer=emailer, webhook=webhook)
+# Report gate
+report_gate = ReportGate(RUNS_DIR)
 
 EULA_FILE = Path(".eula_accepted")
 EULA_TEXT_PATH = Path("docs") / "EULA.md"
@@ -283,6 +289,7 @@ def sessions_close(
 def report_show(
     last: bool = typer.Option(True, "--last/--no-last"),
     run_id: Optional[str] = typer.Option(None, help="Specific run id to show"),
+    report_token: Optional[str] = typer.Option(None, "--report-token", help="Second-factor token if enabled"),
 ):
     if last:
         rid = metrics.latest_run_id()
@@ -291,16 +298,51 @@ def report_show(
     if not rid:
         print("No runs found.")
         raise typer.Exit(code=1)
+    if not report_gate.require(report_token):
+        print("[bold red]Report generation requires a valid token[/bold red].")
+        print("Generate or disable the guard:")
+        print("  - framework report gate-set     # shows token")
+        print("  - framework report gate-disable")
+        print("  - framework report gate-status")
+        raise typer.Exit(code=1)
     app_logger.log("command", {"name": "report show", "run_id": rid})
     report_path = reporter.generate_html(rid)
     print(f"Report: {report_path}")
 
 
 @report_app.command("index")
-def report_index():
+def report_index(
+    report_token: Optional[str] = typer.Option(None, "--report-token", help="Second-factor token if enabled"),
+):
+    if not report_gate.require(report_token):
+        print("[bold red]Report index requires a valid token[/bold red].")
+        print("See: framework report gate-set | gate-disable | gate-status")
+        raise typer.Exit(code=1)
     app_logger.log("command", {"name": "report index"})
     path = reporter.generate_index()
     print(f"Index: {path}")
+
+
+@report_app.command("gate-set")
+def report_gate_set():
+    app_logger.log("command", {"name": "report gate-set"})
+    token = report_gate.set_token()
+    print("Report gate enabled. Use this token when generating reports:")
+    print(f"Token: {token}")
+    print("Pass with: --report-token <TOKEN>")
+
+
+@report_app.command("gate-disable")
+def report_gate_disable():
+    app_logger.log("command", {"name": "report gate-disable"})
+    report_gate.disable()
+    print("Report gate disabled.")
+
+
+@report_app.command("gate-status")
+def report_gate_status():
+    app_logger.log("command", {"name": "report gate-status"})
+    print("Enabled:" if report_gate.is_enabled() else "Disabled")
 
 
 # --- Organization approval commands ---
@@ -343,6 +385,21 @@ def org_reset(confirm: bool = typer.Option(False, "--confirm", help="Confirm res
         raise typer.Exit(code=1)
     org_gate.reset()
     print("Organization approval reset. Re-run org init to start again.")
+
+
+@org_app.command("serve")
+def org_serve(
+    host: str = typer.Option("0.0.0.0", "--host", help="Bind host"),
+    port: int = typer.Option(8080, "--port", help="Bind port"),
+):
+    app_logger.log("command", {"name": "org serve", "host": host, "port": port})
+    print(f"Organization verification HTTP server listening on http://{host}:{port}/verify?token=...")
+    print("Press Ctrl+C to stop.")
+    server = OrgHTTPServer(host, port, verifier=org_gate.verify)
+    try:
+        server.serve()
+    except KeyboardInterrupt:
+        print("Server stopped.")
 
 
 @app.command("about")
