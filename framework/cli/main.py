@@ -48,29 +48,35 @@ def main(
     ctx: typer.Context,
     lab: bool = typer.Option(True, "--lab/--no-lab", help="Restrict to lab-only defaults"),
     agree: bool = typer.Option(False, "--agree", help="Agree to the ethical use EULA"),
+    lang: str = typer.Option("en", "--lang", help="EULA language: en|tr|ru"),
 ):
     ctx.obj = {"lab": lab}
     if lab:
         print("[bold yellow]Lab mode is ON[/bold yellow] - public targets are blocked by default.")
 
     if agree:
+        (RUNS_DIR / ".eula_lang").write_text(lang, encoding="utf-8")
         EULA_FILE.write_text("agreed", encoding="utf-8")
 
     # EULA gating
     if not EULA_FILE.exists():
         print("[bold red]Ethical Use Agreement not accepted[/bold red].")
+        print(_eula_notice(lang))
         if EULA_TEXT_PATH.exists():
-            print(f"Please read {EULA_TEXT_PATH} and rerun with --agree or run 'framework init --agree'.")
-        else:
-            print("Please rerun with --agree to accept the ethical use terms.")
+            print(f"Read full EULA: {EULA_TEXT_PATH}")
+        print("Rerun with --agree or run 'framework init --agree' to accept.")
         raise typer.Exit(code=1)
 
 
 @app.command("init")
-def init(agree: bool = typer.Option(False, "--agree", help="Agree to the ethical use EULA")):
+def init(
+    agree: bool = typer.Option(False, "--agree", help="Agree to the ethical use EULA"),
+    lang: str = typer.Option("en", "--lang", help="EULA language: en|tr|ru"),
+):
     if agree:
+        (RUNS_DIR / ".eula_lang").write_text(lang, encoding="utf-8")
         EULA_FILE.write_text("agreed", encoding="utf-8")
-        print("EULA accepted.")
+        print(f"EULA accepted (lang={lang}).")
     else:
         if EULA_TEXT_PATH.exists():
             print(f"Read EULA at {EULA_TEXT_PATH}. Rerun with --agree to accept.")
@@ -281,3 +287,24 @@ def _shorten(obj, limit=2000):
     if len(s) <= limit:
         return obj
     return {"_truncated": True, "preview": s[:limit] + "..."}
+
+
+def _eula_notice(lang: str) -> str:
+    lang = (lang or "en").lower()
+    if lang.startswith("tr"):
+        return (
+            "Kullanım Sözleşmesi (Özet): Bu yazılım yalnızca izole lab ortamlarında, yasal ve yetkili "
+            "güvenlik testleri için sağlanır. Kullanım tamamen kullanıcı sorumluluğundadır. "
+            "Tüm ilgili kanunlara uyulmalıdır. Yazarlar/katkıcılar hukuki sonuç ve zararlardan sorumlu değildir."
+        )
+    if lang.startswith("ru"):
+        return (
+            "Краткое соглашение: ПО предназначено только для законного, этичного и санкционированного "
+            "тестирования в изолированных лабораториях. Ответственность за использование несет пользователь. "
+            "Соблюдайте все применимые законы. Авторы/участники не несут ответственности за последствия."
+        )
+    return (
+        "EULA Summary: This software is for lawful, authorized testing in isolated labs only. "
+        "You are solely responsible for use. Comply with applicable laws. "
+        "Authors/contributors are not liable for misuse or consequences."
+    )

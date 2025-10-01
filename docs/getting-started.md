@@ -14,8 +14,8 @@ pip install -e .
 
 ## First run
 ```bash
-# Accept ethical use agreement
-framework init --agree
+# Accept ethical use agreement (pick language: en|tr|ru)
+framework init --agree --lang tr
 
 # Check version
 framework --version
