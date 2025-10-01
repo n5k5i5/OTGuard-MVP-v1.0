@@ -31,6 +31,9 @@ Quick start
 - Scaffold a new module:
   framework modules init custom.probe.demo --name "Demo Probe"
 
+Özellikler (TR)
+- Mevcut ve v2.0 planı için ayrıntılar: docs/features-tr.md
+
 Publishing (GitHub & PyPI)
 - GitHub Release:
   1) Bump version in pyproject.toml and CHANGELOG.md
