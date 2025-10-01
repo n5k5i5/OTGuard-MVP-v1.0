@@ -34,6 +34,32 @@ Quick start
 Özellikler (TR)
 - Mevcut ve v2.0 planı için ayrıntılar: docs/features-tr.md
 
+Görseller (Screenshots & Diagrams)
+- Aşağıdaki Mermaid diyagramları GitHub üzerinde otomatik render edilir. PNG/JPG ekran görüntülerini `docs/media/images/` içine koyup README’de referanslayın (örnekler aşağıda).
+- Ayrıntılar ve yönergeler: docs/media/README.md
+
+```mermaid
+%% Architecture (inline)
+graph TD
+  A[CLI (Typer)] --> B[Module Loader]
+  A --> C[Resource Runner (DSL)]
+  A --> D[Sessions (Local/Docker)]
+  A --> E[Report Generator]
+  A --> F[Metrics (JSON + SQLite)]
+  B --> G[Modules (manifests + code)]
+  G --> H[Safety Guardrails]
+  C --> G
+  C --> F
+  E --> I[.runs/ HTML]
+  F --> J[.runs/metrics.db]
+  D --> K[Docker Runtime]
+```
+
+Screenshots (add your images under docs/media/images/)
+- ![CLI Modules List](docs/media/images/cli-modules-list.png)
+- ![Resource Run](docs/media/images/resource-run.png)
+- ![Report Index](docs/media/images/report-index.png)
+
 Publishing (GitHub & PyPI)
 - GitHub Release:
   1) Bump version in pyproject.toml and CHANGELOG.md

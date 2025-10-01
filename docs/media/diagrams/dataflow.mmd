@@ -1,0 +1,22 @@
+%% Data Flow (Mermaid Sequence)
+sequenceDiagram
+  participant U as User
+  participant C as CLI
+  participant L as Loader
+  participant M as Module
+  participant X as Metrics
+  participant R as Reporter
+
+  U->>C: framework run <module> --with key=value
+  C->>X: start_run(kind="single", inputs, flags)
+  C->>L: get_manifest_by_id(module_id)
+  L-->>C: manifest
+  C->>L: load_module(manifest)
+  L-->>C: module instance
+  C->>M: validate() / prepare()
+  C->>M: execute()
+  M-->>C: result
+  C->>M: postprocess()
+  C->>X: end_run(success, result_summary)
+  C->>R: generate_html(run_id)
+  R-->>U: Report path
