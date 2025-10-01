@@ -34,6 +34,60 @@ Quick start
 Özellikler (TR)
 - Mevcut ve v2.0 planı için ayrıntılar: docs/features-tr.md
 
+İndirme, Kurulum ve Kullanım (TR)
+- PyPI'den kurulum (önerilen):
+  1) Sanal ortam (opsiyonel ama önerilir)
+     - Linux/Mac: python -m venv .venv && source .venv/bin/activate
+     - Windows (PowerShell): py -m venv .venv; .\.venv\Scripts\Activate.ps1
+  2) Kurulum: pip install lab-sec-framework
+  3) Doğrulama: framework --version
+- Kaynaktan (geliştirme modu):
+  1) git clone https://github.com/your-org/lab-sec-framework.git
+  2) cd lab-sec-framework
+  3) python -m venv .venv && source .venv/bin/activate  # Windows: .\.venv\Scripts\Activate.ps1
+  4) pip install -e .
+- pipx ile (izole kullanıcı kurulumları için):
+  - pipx install lab-sec-framework
+  - framework --version
+
+İlk kullanım ve EULA
+- EULA kabulü ve dil seçimi (en|tr|ru):
+  - framework init --agree --lang tr
+- Alternatif: Her komutta --agree ve --lang verilebilir
+  - framework modules list --agree --lang tr
+
+Temel komutlar
+- Modül listeleme: framework modules list
+- Örnek modül çalıştırma (emüle): framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
+- Resource (otomasyon) çalıştırma: framework resource run resources/examples/quick_probe.yaml
+- Raporlar:
+  - Son rapor: framework report show --last
+  - Tüm çalıştırmaların indeksi: framework report index
+- Oturumlar:
+  - Oluştur: framework sessions create --type local
+  - Docker (opsiyonel): framework sessions create --type docker --image alpine:latest
+  - Listele/Kapat: framework sessions list / framework sessions close <id>
+- Modül şablonu:
+  - framework modules init custom.probe.demo --name "Demo Probe" --type probe
+
+Güncelleme/Kaldırma
+- Güncelleme (PyPI): pip install -U lab-sec-framework
+- Kaldırma: pip uninstall lab-sec-framework
+- Geliştirme modundan çıkış: deactivate (sanal ortamı kapatır)
+
+Windows notları
+- PowerShell'de sanal ortam aktivasyonu için ExecutionPolicy gerekebilir:
+  - Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+- Python erişimi: py -V, pip yerine py -m pip kullanılabilir.
+
+Sorun giderme
+- Komut bulunamadı:
+  - Sanal ortam aktif mi? PATH ayarları doğru mu?
+- Docker oturum hatası:
+  - docker --version ile kurulum doğrulayın; Docker daemon çalışıyor olmalı.
+- JSON parametreleri:
+  - --with anahtarları için tırnak ve JSON biçimine dikkat (ör. ports='[22,80,443]').
+
 Görseller (Screenshots & Diagrams)
 - Aşağıdaki Mermaid diyagramları GitHub üzerinde otomatik render edilir. PNG/JPG ekran görüntülerini `docs/media/images/` içine koyup README’de referanslayın (örnekler aşağıda).
 - Ayrıntılar ve yönergeler: docs/media/README.md
