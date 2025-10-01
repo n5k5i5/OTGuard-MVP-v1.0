@@ -28,7 +28,7 @@ Test Kapsamı:
 Kritik Sistemler:
 
 ```markdown
-- Active Directory Forest (sabanci.local)
+- Active Directory Forest (n5k5i5.local)
 - SAP ERP System (ERP-SH01)
 - SWIFT Alliance (AKBANK-SWIFT)
 - SCADA Systems (ENERSA-OT)
@@ -48,16 +48,16 @@ A. Pasif Bilgi Toplama
 
 ```bash
 # WHOIS ve DNS Bilgileri
-whois sabanci.com
-dig ANY sabanci.com
-nslookup -type=MX sabanci.com
+whois n5k5i5.com
+dig ANY n5k5i5.com
+nslookup -type=MX n5k5i5.com
 
 # Subdomain Keşfi
-subfinder -d sabanci.com
-amass enum -passive -d sabanci.com
+subfinder -d n5k5i5.com
+amass enum -passive -d n5k5i5.com
 
 # Sosyal Medya ve OSINT
-theHarvester -d sabanci.com -b google,linkedin
+theHarvester -d n5k5i5.com -b google,linkedin
 ```
 
 B. Aktif Keşif
@@ -92,7 +92,7 @@ nessus --target 195.87.0.0/16 --policy "enterprise_scan"
 openvas-cli --target=195.87.1.0/24 --port-range=1-65535
 
 # Web Uygulama Güvenlik Testi
-burpsuite --scan --target https://*.sabanci.com
+burpsuite --scan --target https://*.n5k5i5.com
 ```
 
 B. Manuel Zafiyet Değerlendirmesi
@@ -122,19 +122,19 @@ A. External Penetration
 
 ```bash
 # Web Uygulama Testleri
-sqlmap -u "https://portal.sabanci.com/login" --level=5
-nikto -h https://portal.sabanci.com -C all
+sqlmap -u "https://portal.n5k5i5.com/login" --level=5
+nikto -h https://portal.n5k5i5.com -C all
 
 # API Güvenlik Testi
-owasp-zap -t https://api.sabanci.com -s
+owasp-zap -t https://api.n5k5i5.com -s
 ```
 
 B. Internal Network Penetration
 
 ```bash
 # Active Directory Testleri
-bloodhound-python -d sabanci.local -c All
-kerbrute userenum --dc DC01.sabanci.local users.txt
+bloodhound-python -d n5k5i5.local -c All
+kerbrute userenum --dc DC01.n5k5i5.local users.txt
 
 # Lateral Movement Simülasyonu
 crackmapexec smb 195.87.1.0/24 -u users.txt -p passwords.txt
@@ -144,11 +144,11 @@ C. Phishing Simülasyonu (Onaylı)
 
 ```python
 # Senaryo 1: HR Departmanı phishing
-target_groups = ["hr@sabanci.com", "finans@sabanci.com"]
+target_groups = ["hr@n5k5i5.com", "finans@n5k5i5.com"]
 phishing_template = "Salary_Update_2024.html"
 
 # Senaryo 2: Yönetici spear phishing
-executive_targets = ["ceo@sabanci.com", "cio@sabanci.com"]
+executive_targets = ["ceo@n5k5i5.com", "cio@n5k5i5.com"]
 custom_template = "Board_Meeting_Minutes.pdf"
 ```
 
@@ -207,17 +207,17 @@ B. Mobile Application Security
 
 ```bash
 # iOS/Android Uygulama Testi
-mobsf --apk sabanci-mobile.apk
-frida --analyze com.sabanci.mobile
+mobsf --apk n5k5i5-mobile.apk
+frida --analyze com.n5k5i5.mobile
 ```
 
 C. Cloud Security Assessment
 
 ```bash
 # AWS Misconfiguration
-pacuv --aws-profile sabanci-prod
+pacuv --aws-profile n5k5i5-prod
 # Azure Security Scan
-azscan --tenant sabanciholding
+azscan --tenant n5k5i5holding
 ```
 
 ---
@@ -251,7 +251,7 @@ B. Rapor Yapısı
 
 ```mermaid
 gantt
-    title Sabancı Holding Penetrasyon Testi Zaman Planı
+    title n5k5i5 Penetrasyon Testi Zaman Planı
     dateFormat  YYYY-MM-DD
     section Keşif Fazı
     Pasif Bilgi Toplama     :2024-01-15, 7d
@@ -333,7 +333,7 @@ Kapanış Kriterleri:
 
 Onaylayanlar:
 
-· Sabancı Holding CISO: _________________  
+· n5k5i5 CISO: _________________  
 · Test Lideri: _________________  
 · Proje Yöneticisi: _________________
 
