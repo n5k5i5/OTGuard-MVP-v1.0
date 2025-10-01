@@ -1,0 +1,22 @@
+%% Architecture Diagram (Mermaid)
+graph TD
+  A[CLI (Typer)] --> B[Module Loader]
+  A --> C[Resource Runner (DSL)]
+  A --> D[Sessions (Local/Docker)]
+  A --> E[Report Generator]
+  A --> F[Metrics Collector (JSON + SQLite)]
+
+  B --> G[Modules (manifests + code)]
+  G --> H[Safety Guardrails]
+  C --> G
+  C --> F
+  E --> I[.runs/ (HTML reports)]
+  F --> J[.runs/metrics.db]
+  D --> K[Docker Runtime Helper]
+  A --> L[Bundled Examples]
+  L --> G
+
+  classDef comp fill:#eef,stroke:#55c,stroke-width:1px;
+  classDef store fill:#efe,stroke:#5c5,stroke-width:1px;
+  class A,B,C,D,E,F,G,H comp;
+  class I,J store;
