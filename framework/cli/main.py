@@ -15,6 +15,8 @@ from framework.core.report.generator import ReportGenerator
 from framework.core.safety.guardrails import SafetyGuard
 from framework.core.sessions.store import SessionStore
 from framework.core.sessions.docker_runtime import docker_available, run_container, stop_container
+from framework.core.policy.org_gate import OrgGate
+from framework.core.notify.emailer import Emailer
 
 app = typer.Typer(help="Lab Security Framework (MVP scaffold) - Lab-only by default.")
 
@@ -22,11 +24,13 @@ modules_app = typer.Typer(help="Module management commands")
 sessions_app = typer.Typer(help="Session commands")
 resource_app = typer.Typer(help="Resource script runner")
 report_app = typer.Typer(help="Reporting commands")
+org_app = typer.Typer(help="Organization/company approval commands")
 
 app.add_typer(modules_app, name="modules")
 app.add_typer(sessions_app, name="sessions")
 app.add_typer(resource_app, name="resource")
 app.add_typer(report_app, name="report")
+app.add_typer(org_app, name="org")
 
 # Prefer local modules/ during development; fall back to bundled examples in package
 PKG_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +44,10 @@ app_logger = AppLogger(RUNS_DIR / "app.log")
 reporter = ReportGenerator(RUNS_DIR)
 guard = SafetyGuard()
 sessions_store = SessionStore(RUNS_DIR / "sessions.json")
+
+# Org gate
+emailer = Emailer()
+org_gate = OrgGate(RUNS_DIR, emailer=emailer)
 
 EULA_FILE = Path(".eula_accepted")
 EULA_TEXT_PATH = Path("docs") / "EULA.md"
@@ -79,6 +87,19 @@ def main(
             print(f"Read full EULA: {EULA_TEXT_PATH}")
         print("Rerun with --agree or run 'framework init --agree' to accept.")
         raise typer.Exit(code=1)
+
+    # Organization approval gating
+    # Allow: no subcommand (help), 'init', 'org' group, 'about'
+    allowed = {None, "init", "org", "about"}
+    if not org_gate.is_verified():
+        if ctx.invoked_subcommand not in allowed:
+            print("[bold red]Organization approval required[/bold red].")
+            print("Company information and explicit approval must be completed before use.")
+            print("Steps:")
+            print("  1) framework org init --name \"ACME\" --domain acme.com --email secops@acme.com")
+            print("  2) Check company email for the verification token")
+            print("  3) framework org verify --token <TOKEN>")
+            raise typer.Exit(code=1)
 
 
 @app.command("init")
@@ -280,6 +301,48 @@ def report_index():
     app_logger.log("command", {"name": "report index"})
     path = reporter.generate_index()
     print(f"Index: {path}")
+
+
+# --- Organization approval commands ---
+
+@org_app.command("init")
+def org_init(
+    name: str = typer.Option(..., "--name", help="Organization name"),
+    domain: str = typer.Option(..., "--domain", help="Primary domain (e.g., acme.com)"),
+    email: str = typer.Option(..., "--email", help="Approver email (security/contact)"),
+):
+    app_logger.log("command", {"name": "org init", "org": name, "domain": domain, "email": email})
+    token = org_gate.init_org(name=name, domain=domain, email=email)
+    if emailer.is_configured():
+        print("Organization initialized. Verification email sent.")
+    else:
+        print("Organization initialized. SMTP not configured; share this token with approver:")
+        print(f"Token: {token}")
+        print("Approver can authorize via: framework org verify --token <TOKEN>")
+
+@org_app.command("status")
+def org_status():
+    app_logger.log("command", {"name": "org status"})
+    st = org_gate.status()
+    print(json.dumps(st, indent=2))
+
+@org_app.command("verify")
+def org_verify(token: str = typer.Option(..., "--token", help="Verification token")):
+    app_logger.log("command", {"name": "org verify"})
+    ok = org_gate.verify(token)
+    if not ok:
+        print("Verification failed. Check token and try again.")
+        raise typer.Exit(code=1)
+    print("Organization verified. You may now use the system.")
+
+@org_app.command("reset")
+def org_reset(confirm: bool = typer.Option(False, "--confirm", help="Confirm reset")):
+    app_logger.log("command", {"name": "org reset"})
+    if not confirm:
+        print("Add --confirm to proceed. This will clear organization approval.")
+        raise typer.Exit(code=1)
+    org_gate.reset()
+    print("Organization approval reset. Re-run org init to start again.")
 
 
 @app.command("about")

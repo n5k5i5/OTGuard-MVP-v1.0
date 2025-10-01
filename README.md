@@ -56,6 +56,19 @@ Quick start
 - Alternatif: Her komutta --agree ve --lang verilebilir
   - framework modules list --agree --lang tr
 
+Organizasyon onayı (zorunlu)
+- Sistem kullanımı öncesi şirket/organizasyon onayı gerekir. Adımlar:
+  1) Organizasyon başlat: framework org init --name "ACME" --domain acme.com --email secops@acme.com
+  2) Onay e-postasındaki doğrulama kodunu (token) alın
+     - SMTP yapılandırılmadıysa token CLI’da gösterilir (manuel paylaşım)
+  3) Doğrulama: framework org verify --token <TOKEN>
+- Durumu görüntüle: framework org status
+- Sıfırlama (gerekirse): framework org reset --confirm
+
+SMTP yapılandırması (opsiyonel; e-posta göndermek için)
+- Ortam değişkenleri:
+  - SMTP_HOST, SMTP_PORT (varsayılan 587), SMTP_USER, SMTP_PASS, SMTP_FROM, SMTP_TLS (true/false)
+
 Temel komutlar
 - Modül listeleme: framework modules list
 - Örnek modül çalıştırma (emüle): framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
@@ -147,6 +160,7 @@ Docs
 - docs/getting-started.md
 - docs/module-dev-guide.md
 - docs/architecture.md
+- docs/policy/org-approval.md
 - docs/EULA.md (EN/TR/RU)
 
 Changelog

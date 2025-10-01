@@ -53,6 +53,34 @@ framework init --agree --lang tr
   framework modules list --agree --lang tr
   ```
 
+## Organizasyon onayı (zorunlu)
+Sistemin kullanılabilmesi için şirket/organizasyon onayı gerekir.
+
+1) Organizasyonu başlat:
+```bash
+framework org init --name "ACME" --domain acme.com --email secops@acme.com
+```
+- SMTP yapılandırıldıysa onay e-postası gönderilir.
+- SMTP yoksa token CLI’da gösterilir (manuel paylaşım için).
+
+2) Token ile doğrulama:
+```bash
+framework org verify --token <TOKEN>
+```
+
+3) Durumu görüntüleme ve sıfırlama:
+```bash
+framework org status
+framework org reset --confirm
+```
+
+### SMTP yapılandırması (opsiyonel)
+Aşağıdaki ortam değişkenlerini ayarlayın:
+- SMTP_HOST, SMTP_PORT (varsayılan 587)
+- SMTP_USER, SMTP_PASS
+- SMTP_FROM (varsayılan SMTP_USER)
+- SMTP_TLS (true/false; varsayılan true)
+
 ## Temel kullanım
 ```bash
 # Modülleri listele
