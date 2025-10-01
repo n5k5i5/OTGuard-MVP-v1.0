@@ -43,12 +43,23 @@ EULA_FILE = Path(".eula_accepted")
 EULA_TEXT_PATH = Path("docs") / "EULA.md"
 
 
+def _version_callback(value: bool):
+    if value:
+        try:
+            v = importlib_metadata.version("lab-sec-framework")
+        except importlib_metadata.PackageNotFoundError:
+            v = "1.0.0"
+        print(v)
+        raise typer.Exit()
+
+
 @app.callback()
 def main(
     ctx: typer.Context,
     lab: bool = typer.Option(True, "--lab/--no-lab", help="Restrict to lab-only defaults"),
     agree: bool = typer.Option(False, "--agree", help="Agree to the ethical use EULA"),
     lang: str = typer.Option("en", "--lang", help="EULA language: en|tr|ru"),
+    version: bool = typer.Option(False, "--version", "-V", help="Show version and exit", callback=_version_callback, is_eager=True),
 ):
     ctx.obj = {"lab": lab}
     if lab:
@@ -82,15 +93,6 @@ def init(
             print(f"Read EULA at {EULA_TEXT_PATH}. Rerun with --agree to accept.")
         else:
             print("No EULA file found. Rerun with --agree to accept default ethical use terms.")
-
-
-@app.command("--version")
-def version():
-    try:
-        v = importlib_metadata.version("lab-sec-framework")
-    except importlib_metadata.PackageNotFoundError:
-        v = "1.0.0"
-    print(v)
 
 
 @modules_app.command("list")

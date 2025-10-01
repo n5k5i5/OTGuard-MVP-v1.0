@@ -101,14 +101,20 @@ class ResourceRunner:
         return data
 
     def _interpolate(self, s: str, ctx):
-        # Replace occurrences of ${...} with resolved values.
-        # If string is exactly a single ${...}, return the resolved object; else return the string with substitutions.
+        # If the whole string is a single token, resolve it (support nested tokens inside)
+        if s.startswith("${") and s.endswith("}"):
+            inner = s[2:-1]
+            inner_resolved = self._interpolate(inner, ctx) if isinstance(inner, str) else inner
+            if isinstance(inner_resolved, str):
+                return self._resolve_path(inner_resolved, ctx)
+            return inner_resolved
+
         if "${" not in s:
             return s
-        parts: List[Tuple[str, bool]] = []
+
+        # Replace non-nested ${...} tokens inside the string
         out = ""
         i = 0
-        single_token = False
         while i < len(s):
             start = s.find("${", i)
             if start == -1:
@@ -117,19 +123,16 @@ class ResourceRunner:
             out += s[i:start]
             end = s.find("}", start + 2)
             if end == -1:
-                # no closing brace, treat rest as literal
                 out += s[start:]
                 break
             token = s[start + 2 : end]
-            value = self._resolve_path(token, ctx)
-            if out == "" and end == len(s) - 1 and i == 0:
-                # whole string is a single token
-                single_token = True
+            resolved = self._interpolate(token, ctx) if isinstance(token, str) else token
+            if isinstance(resolved, str):
+                value = self._resolve_path(resolved, ctx)
+            else:
+                value = resolved
             out += str(value)
             i = end + 1
-        if single_token and out and not ("${" in s or "}" in s):
-            # Return resolved object if it was a single token and not coerced to string
-            return self._resolve_path(s[2:-1], ctx)
         return out
 
     def _resolve_path(self, path: str, ctx):
