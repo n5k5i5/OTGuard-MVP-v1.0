@@ -64,7 +64,7 @@ Docs
 - docs/getting-started.md
 - docs/module-dev-guide.md
 - docs/architecture.md
-- docs/EULA.md
+- docs/EULA.md (EN/TR/RU)
 
 Changelog
 - See CHANGELOG.md for release notes.
