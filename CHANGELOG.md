@@ -1,5 +1,8 @@
 Changelog
 
+Unreleased (v2.0 roadmap)
+- Planned features and priorities are tracked in ROADMAP.md
+
 v1.0.0 (2025-09-30)
 - First stable release. CLI-only; no API exposed.
 - EULA gate for ethical use.

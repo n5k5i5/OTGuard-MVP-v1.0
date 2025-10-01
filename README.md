@@ -41,6 +41,18 @@ Publishing (GitHub & PyPI)
     - PYPI_API_TOKEN: PyPI token with publish rights
   - On publishing a GitHub Release, the workflow .github/workflows/publish.yml builds and uploads to PyPI
 
+Roadmap: v2.0 (Coming)
+- Resource DSL: regex/exists, gt/lt, any/all; retry, timeout, continue_on_error; parallel foreach
+- Reporting: templated module summaries, aggregate dashboard, multi-run trends, JSON/CSV exports
+- Sessions/Lab: Docker logs/exec/copy, network isolation presets, lab profiles, session-aware modules
+- Governance: policy.yaml (allowed modules/params), unsafe justification logs, trust model (signing/pinning)
+- Modules: HTTP/DNS/WHOIS probes, banner grab, JSON/CSV transforms, Nmap runner + richer parse
+- DX/Test: typed config (pydantic), completions, contract tests, debug/trace mode
+- Performance: parallel engine, caching, streaming large results
+- DevOps: release-drafter, PyPI OIDC trusted publishing, optional Homebrew/binaries
+
+See full roadmap: ROADMAP.md
+
 Safety
 - Lab mode is ON by default (blocks public IPs). Use --unsafe to override in a lab environment only.
 - Example modules run in emulate mode by default.
