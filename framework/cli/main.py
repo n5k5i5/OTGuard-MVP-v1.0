@@ -10,6 +10,7 @@ from rich.table import Table
 from framework.core.modules.loader import ModuleLoader
 from framework.core.automation.resource_runner import ResourceRunner
 from framework.core.metrics.collector import MetricsCollector
+from framework.core.metrics.logger import AppLogger
 from framework.core.report.generator import ReportGenerator
 from framework.core.safety.guardrails import SafetyGuard
 from framework.core.sessions.store import SessionStore
@@ -35,6 +36,7 @@ RUNS_DIR = Path(".runs")
 RUNS_DIR.mkdir(exist_ok=True)
 
 metrics = MetricsCollector(RUNS_DIR)
+app_logger = AppLogger(RUNS_DIR / "app.log")
 reporter = ReportGenerator(RUNS_DIR)
 guard = SafetyGuard()
 sessions_store = SessionStore(RUNS_DIR / "sessions.json")
@@ -84,6 +86,7 @@ def init(
     agree: bool = typer.Option(False, "--agree", help="Agree to the ethical use EULA"),
     lang: str = typer.Option("en", "--lang", help="EULA language: en|tr|ru"),
 ):
+    app_logger.log("command", {"name": "init", "agree": agree, "lang": lang})
     if agree:
         (RUNS_DIR / ".eula_lang").write_text(lang, encoding="utf-8")
         EULA_FILE.write_text("agreed", encoding="utf-8")
@@ -99,6 +102,7 @@ def init(
 def modules_list(
     modules_dir: Path = typer.Option(DEFAULT_MODULES_DIR, exists=True, file_okay=False),
 ):
+    app_logger.log("command", {"name": "modules list", "modules_dir": str(modules_dir)})
     loader = ModuleLoader([modules_dir])
     loaded = loader.discover()
     table = Table(title="Available Modules")
@@ -121,6 +125,7 @@ def modules_init(
     type_: str = typer.Option("probe", "--type", help="probe|post|auxiliary"),
     out_dir: Path = typer.Option(DEFAULT_MODULES_DIR, "--out", help="Base modules directory"),
 ):
+    app_logger.log("command", {"name": "modules init", "module_id": module_id, "type": type_, "out_dir": str(out_dir)})
     parts = module_id.split(".")
     folder = out_dir / Path("/".join(parts))
     folder.mkdir(parents=True, exist_ok=True)
@@ -157,6 +162,7 @@ def run_module(
     emulate: bool = typer.Option(True, "--emulate/--no-emulate", help="Run module in emulation mode if supported"),
     unsafe: bool = typer.Option(False, "--unsafe", help="Bypass guardrails (logged)"),
 ):
+    app_logger.log("command", {"name": "run", "module_id": module_id, "emulate": emulate, "unsafe": unsafe})
     loader = ModuleLoader([modules_dir])
     manifest = loader.get_manifest_by_id(module_id)
     if not manifest:
@@ -190,6 +196,7 @@ def resource_run(
     modules_dir: Path = typer.Option(DEFAULT_MODULES_DIR, exists=True, file_okay=False),
     unsafe: bool = typer.Option(False, "--unsafe", help="Bypass guardrails (logged)"),
 ):
+    app_logger.log("command", {"name": "resource run", "path": str(path), "unsafe": unsafe})
     loader = ModuleLoader([modules_dir])
     runner = ResourceRunner(loader=loader, metrics=metrics, guard=guard, unsafe=unsafe)
     run_id = runner.run(path)
@@ -201,6 +208,7 @@ def sessions_create(
     type_: str = typer.Option("local", "--type", help="local|docker"),
     image: Optional[str] = typer.Option(None, "--image", help="Docker image if type=docker"),
 ):
+    app_logger.log("command", {"name": "sessions create", "type": type_, "image": image})
     meta = {}
     if type_ == "docker":
         if not docker_available():
@@ -215,6 +223,7 @@ def sessions_create(
 
 @sessions_app.command("list")
 def sessions_list():
+    app_logger.log("command", {"name": "sessions list"})
     table = Table(title="Sessions")
     table.add_column("ID")
     table.add_column("Type")
@@ -229,6 +238,7 @@ def sessions_list():
 def sessions_close(
     session_id: str = typer.Argument(...)
 ):
+    app_logger.log("command", {"name": "sessions close", "session_id": session_id})
     # attempt to stop docker if associated
     sessions = sessions_store.list()
     for s in sessions:
@@ -260,14 +270,29 @@ def report_show(
     if not rid:
         print("No runs found.")
         raise typer.Exit(code=1)
+    app_logger.log("command", {"name": "report show", "run_id": rid})
     report_path = reporter.generate_html(rid)
     print(f"Report: {report_path}")
 
 
 @report_app.command("index")
 def report_index():
+    app_logger.log("command", {"name": "report index"})
     path = reporter.generate_index()
     print(f"Index: {path}")
+
+
+@app.command("about")
+def about():
+    app_logger.log("command", {"name": "about"})
+    print("Özellikler (TR) - kısa özet:")
+    print("- Modüler mimari ve modül SDK'sı")
+    print("- Otomasyon (Resource DSL): değişkenler, koşullar, döngüler")
+    print("- Raporlama: HTML/JSON ve çalışma indeksi")
+    print("- Oturumlar: local ve Docker stub")
+    print("- Güvenlik: EULA (EN/TR/RU), lab modunda guardrails")
+    print("- Paketleme: PyPI/GitHub yayın")
+    print("- Ayrıntılar için: docs/features-tr.md")
 
 
 def _parse_kv_list(items: List[str]) -> dict:
