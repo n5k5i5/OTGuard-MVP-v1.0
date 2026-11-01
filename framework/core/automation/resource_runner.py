@@ -140,7 +140,7 @@ class ResourceRunner:
 
     def _eval_when(self, expr, ctx) -> bool:
         # expr can be a truthy path string like "${alias.key}"
-        # or a dict with simple operators: equals, contains
+        # or a dict with rich operators (v2.0): equals, contains, gt, lt, gte, lte, regex, exists, not, all, any
         if isinstance(expr, str):
             val = self._render(expr, ctx)
             return bool(val)
@@ -158,6 +158,36 @@ class ResourceRunner:
                     return item_v in cont_v
                 except Exception:
                     return False
+            if "gt" in expr:
+                left, right = expr["gt"]
+                return float(self._render(left, ctx)) > float(self._render(right, ctx))
+            if "lt" in expr:
+                left, right = expr["lt"]
+                return float(self._render(left, ctx)) < float(self._render(right, ctx))
+            if "gte" in expr:
+                left, right = expr["gte"]
+                return float(self._render(left, ctx)) >= float(self._render(right, ctx))
+            if "lte" in expr:
+                left, right = expr["lte"]
+                return float(self._render(left, ctx)) <= float(self._render(right, ctx))
+            if "regex" in expr:
+                import re
+                pat, text = expr["regex"]
+                pat_v = str(self._render(pat, ctx))
+                text_v = str(self._render(text, ctx))
+                return bool(re.search(pat_v, text_v))
+            if "exists" in expr:
+                target = expr["exists"]
+                val = self._render(target, ctx)
+                return val is not None and val != "" and val != "None"
+            if "not" in expr:
+                return not self._eval_when(expr["not"], ctx)
+            if "all" in expr or "and" in expr:
+                items = expr.get("all") or expr.get("and")
+                return all(self._eval_when(item, ctx) for item in items)
+            if "any" in expr or "or" in expr:
+                items = expr.get("any") or expr.get("or")
+                return any(self._eval_when(item, ctx) for item in items)
         return False
 
     def _shorten(self, obj, limit=2000):

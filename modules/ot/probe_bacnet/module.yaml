@@ -1,0 +1,20 @@
+id: ot.probe.bacnet
+name: BACnet/IP Building Automation Probe
+version: 1.0.0
+type: probe
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:BACnetProbeModule
+inputs:
+  - name: targets
+    type: list[str]
+    required: true
+  - name: port
+    type: int
+    default: 47808
+  - name: timeout
+    type: float
+    default: 1.0
+outputs:
+  - name: bacnet_devices
+    type: dict

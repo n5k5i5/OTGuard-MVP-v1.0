@@ -15,7 +15,9 @@ from framework.core.safety.guardrails import SafetyGuard
 from framework.core.sessions.store import SessionStore
 from framework.core.sessions.docker_runtime import docker_available, run_container, stop_container
 
-app = typer.Typer(help="Lab Security Framework (MVP scaffold) - Lab-only by default.")
+app = typer.Typer(
+    help="OTGuard v2.0 - Operational Technology & SCADA/ICS Security Testing Framework (Author: n5k5i5)"
+)
 
 modules_app = typer.Typer(help="Module management commands")
 sessions_app = typer.Typer(help="Session commands")
@@ -51,6 +53,10 @@ def main(
     lang: str = typer.Option("en", "--lang", help="EULA language: en|tr|ru"),
 ):
     ctx.obj = {"lab": lab}
+    print("[bold cyan]╔═══════════════════════════════════════════════════════╗[/bold cyan]")
+    print("[bold cyan]║  🛡️  OTGuard v2.0 - ICS/SCADA Security Framework      ║[/bold cyan]")
+    print("[bold cyan]║     Lead Developer & Architect: n5k5i5                ║[/bold cyan]")
+    print("[bold cyan]╚═══════════════════════════════════════════════════════╝[/bold cyan]")
     if lab:
         print("[bold yellow]Lab mode is ON[/bold yellow] - public targets are blocked by default.")
 
@@ -64,7 +70,7 @@ def main(
         print(_eula_notice(lang))
         if EULA_TEXT_PATH.exists():
             print(f"Read full EULA: {EULA_TEXT_PATH}")
-        print("Rerun with --agree or run 'framework init --agree' to accept.")
+        print("Rerun with --agree or run 'otguard init --agree' to accept.")
         raise typer.Exit(code=1)
 
 
@@ -76,7 +82,7 @@ def init(
     if agree:
         (RUNS_DIR / ".eula_lang").write_text(lang, encoding="utf-8")
         EULA_FILE.write_text("agreed", encoding="utf-8")
-        print(f"EULA accepted (lang={lang}).")
+        print(f"[bold green]OTGuard EULA accepted[/bold green] (lang={lang}). Ready for testing.")
     else:
         if EULA_TEXT_PATH.exists():
             print(f"Read EULA at {EULA_TEXT_PATH}. Rerun with --agree to accept.")
@@ -87,10 +93,13 @@ def init(
 @app.command("--version")
 def version():
     try:
-        v = importlib_metadata.version("lab-sec-framework")
+        v = importlib_metadata.version("otguard")
     except importlib_metadata.PackageNotFoundError:
-        v = "1.0.0"
-    print(v)
+        try:
+            v = importlib_metadata.version("lab-sec-framework")
+        except importlib_metadata.PackageNotFoundError:
+            v = "2.0.0.dev1"
+    print(f"OTGuard version {v} (by n5k5i5)")
 
 
 @modules_app.command("list")

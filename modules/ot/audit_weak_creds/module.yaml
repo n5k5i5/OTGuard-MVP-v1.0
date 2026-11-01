@@ -1,0 +1,22 @@
+id: ot.audit.weak_creds
+name: OT / SCADA Default & Weak Credential Checker
+version: 1.0.0
+type: post
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:WeakCredsAuditModule
+inputs:
+  - name: targets
+    type: list[str]
+    required: true
+  - name: vendor
+    type: str
+    default: "generic"
+  - name: service
+    type: str
+    default: "http"
+outputs:
+  - name: audit_findings
+    type: list
+  - name: vulnerable_count
+    type: int

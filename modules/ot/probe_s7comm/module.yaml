@@ -1,0 +1,20 @@
+id: ot.probe.s7comm
+name: Siemens S7comm / ISO-on-TCP Probe
+version: 1.0.0
+type: probe
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:S7CommProbeModule
+inputs:
+  - name: targets
+    type: list[str]
+    required: true
+  - name: port
+    type: int
+    default: 102
+  - name: timeout
+    type: float
+    default: 1.0
+outputs:
+  - name: s7_devices
+    type: dict

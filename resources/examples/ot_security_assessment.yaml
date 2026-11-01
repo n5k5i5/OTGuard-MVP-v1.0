@@ -1,0 +1,44 @@
+version: "1"
+name: "OT & ICS Security Comprehensive Assessment"
+vars:
+  targets: ["127.0.0.1"]
+steps:
+  - run:
+      module: "ot.probe.modbus"
+      with:
+        targets: "${vars.targets}"
+        port: 502
+        unit_ids: [1, 2]
+    as: "modbus_step"
+
+  - run:
+      module: "ot.probe.s7comm"
+      with:
+        targets: "${vars.targets}"
+        port: 102
+    as: "s7_step"
+
+  - run:
+      module: "ot.probe.bacnet"
+      with:
+        targets: "${vars.targets}"
+        port: 47808
+    as: "bacnet_step"
+
+  - run:
+      module: "net.probe.http_banner"
+      with:
+        targets: "${vars.targets}"
+        ports: [80, 443, 8080]
+    as: "hmi_step"
+
+  - run:
+      module: "util.transform.export"
+      with:
+        data: "${modbus_step.modbus_devices}"
+        format: "json"
+        output_file: ".runs/ot_assessment_export.json"
+    as: "export_step"
+
+  - report:
+      include: ["modbus_step", "s7_step", "bacnet_step", "hmi_step", "export_step"]

@@ -3,10 +3,10 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lab-sec-framework"
-version = "1.0.0"
-description = "A safe, modular security testing framework scaffold (lab-only by default)."
-authors = [{name = "Your Team"}]
+name = "otguard"
+version = "2.0.0.dev1"
+description = "OTGuard - Operational Technology & ICS/SCADA Security Testing Framework (Lab-first, safe emulation)"
+authors = [{name = "n5k5i5"}]
 requires-python = ">=3.9"
 dependencies = [
   "typer>=0.12",
@@ -21,11 +21,12 @@ classifiers = [
   "Environment :: Console",
   "Intended Audience :: Information Technology",
   "Topic :: Security",
+  "Topic :: System :: Networking",
 ]
 urls = { 
-  "Homepage" = "https://github.com/your-org/lab-sec-framework",
-  "Repository" = "https://github.com/your-org/lab-sec-framework",
-  "Issues" = "https://github.com/your-org/lab-sec-framework/issues"
+  "Homepage" = "https://github.com/n5k5i5/OTGuard",
+  "Repository" = "https://github.com/n5k5i5/OTGuard",
+  "Issues" = "https://github.com/n5k5i5/OTGuard/issues"
 }
 
 [project.optional-dependencies]
@@ -35,6 +36,7 @@ dev = [
 ]
 
 [project.scripts]
+otguard = "framework.cli.main:app"
 framework = "framework.cli.main:app"
 
 [tool.setuptools]

@@ -1,0 +1,23 @@
+id: ot.probe.modbus
+name: Modbus TCP Probe & Diagnostic
+version: 1.0.0
+type: probe
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:ModbusProbeModule
+inputs:
+  - name: targets
+    type: list[str]
+    required: true
+  - name: port
+    type: int
+    default: 502
+  - name: unit_ids
+    type: list[int]
+    default: [1]
+  - name: timeout
+    type: float
+    default: 1.0
+outputs:
+  - name: modbus_devices
+    type: dict

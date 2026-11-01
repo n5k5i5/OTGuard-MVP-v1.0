@@ -1,0 +1,20 @@
+id: net.probe.http_banner
+name: Industrial Web & HMI Banner Grabber
+version: 1.0.0
+type: probe
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:HttpBannerProbeModule
+inputs:
+  - name: targets
+    type: list[str]
+    required: true
+  - name: ports
+    type: list[int]
+    default: [80, 443, 8080]
+  - name: timeout
+    type: float
+    default: 1.5
+outputs:
+  - name: http_banners
+    type: dict

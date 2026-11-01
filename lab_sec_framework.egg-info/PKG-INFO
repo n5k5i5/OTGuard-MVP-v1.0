@@ -1,0 +1,115 @@
+Metadata-Version: 2.4
+Name: lab-sec-framework
+Version: 1.0.0
+Summary: A safe, modular security testing framework scaffold (lab-only by default).
+Author: Your Team
+License: MIT License
+        
+        Copyright (c) 2025 Your Team
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in
+        all copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+        THE SOFTWARE.
+Project-URL: Homepage, https://github.com/your-org/lab-sec-framework
+Project-URL: Repository, https://github.com/your-org/lab-sec-framework
+Project-URL: Issues, https://github.com/your-org/lab-sec-framework/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Information Technology
+Classifier: Topic :: Security
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: typer>=0.12
+Requires-Dist: pyyaml>=6.0.1
+Requires-Dist: rich>=13.7
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4; extra == "dev"
+Requires-Dist: build>=1.2.1; extra == "dev"
+Dynamic: license-file
+
+Lab Security Framework v1.0
+===========================
+
+[![CI](https://github.com/your-org/lab-sec-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/lab-sec-framework/actions/workflows/ci.yml)
+[![Publish](https://github.com/your-org/lab-sec-framework/actions/workflows/publish.yml/badge.svg)](https://github.com/your-org/lab-sec-framework/actions/workflows/publish.yml)
+[![PyPI version](https://img.shields.io/pypi/v/lab-sec-framework.svg)](https://pypi.org/project/lab-sec-framework/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+A safe, modular, lab-first security testing framework scaffold that focuses on
+developer experience, automation, and governance. Ships with non-operational
+example modules and strong guardrails. CLI-only. No API is exposed.
+
+Quick start
+- Install: pip install -e .
+- Accept EULA: framework init --agree
+- Version: framework --version
+- List modules: framework modules list
+- Run a module:
+  framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
+- Run a resource:
+  framework resource run resources/examples/quick_probe.yaml
+- Show last report:
+  framework report show --last
+- Generate runs index:
+  framework report index
+- Manage sessions:
+  framework sessions create --type local
+  framework sessions list
+  framework sessions close <id>
+  framework sessions create --type docker --image alpine:latest   # requires Docker
+- Scaffold a new module:
+  framework modules init custom.probe.demo --name "Demo Probe"
+
+Publishing (GitHub & PyPI)
+- GitHub Release:
+  1) Bump version in pyproject.toml and CHANGELOG.md
+  2) Create a tag (e.g., v1.0.0) and push
+  3) Publish a GitHub Release from the tag
+- PyPI Publish:
+  - Configure repository secrets:
+    - PYPI_API_TOKEN: PyPI token with publish rights
+  - On publishing a GitHub Release, the workflow .github/workflows/publish.yml builds and uploads to PyPI
+
+Roadmap: v2.0 (Coming)
+- Resource DSL: regex/exists, gt/lt, any/all; retry, timeout, continue_on_error; parallel foreach
+- Reporting: templated module summaries, aggregate dashboard, multi-run trends, JSON/CSV exports
+- Sessions/Lab: Docker logs/exec/copy, network isolation presets, lab profiles, session-aware modules
+- Governance: policy.yaml (allowed modules/params), unsafe justification logs, trust model (signing/pinning)
+- Modules: HTTP/DNS/WHOIS probes, banner grab, JSON/CSV transforms, Nmap runner + richer parse
+- DX/Test: typed config (pydantic), completions, contract tests, debug/trace mode
+- Performance: parallel engine, caching, streaming large results
+- DevOps: release-drafter, PyPI OIDC trusted publishing, optional Homebrew/binaries
+
+See full roadmap: ROADMAP.md
+
+Safety
+- Lab mode is ON by default (blocks public IPs). Use --unsafe to override in a lab environment only.
+- Example modules run in emulate mode by default.
+
+License
+- MIT License. See LICENSE file.
+
+Docs
+- docs/getting-started.md
+- docs/module-dev-guide.md
+- docs/architecture.md
+- docs/EULA.md (EN/TR/RU)
+
+Changelog
+- See CHANGELOG.md for release notes.

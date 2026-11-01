@@ -1,19 +1,28 @@
-Roadmap: v2.0 (Planned)
-=======================
+# OTGuard Roadmap: v2.0
 
-This document outlines high-impact features targeted for v2.0. The scope is CLI-only; no external API/server is planned.
+> **Lead Architect:** `n5k5i5`  
+> High-impact features targeted for OTGuard v2.0. Scope is CLI-only and Lab-safe.
 
-1) Resource DSL Enhancements
-- Operators: gt, lt, regex, exists, any/all
-- Execution controls: continue_on_error, retry with backoff, per-step timeout
-- Parallel foreach with concurrency limit
-- Include/import for YAML (compose resources), external vars files, basic secrets support
+## 1) Resource DSL Enhancements
+- [x] **v2.0-dev1 Operators:** `gt`, `lt`, `gte`, `lte`, `regex`, `exists`, `all`/`and`, `any`/`or`, `not`
+- [ ] Execution controls: `continue_on_error`, retry with backoff, per-step timeout
+- [ ] Parallel foreach with concurrency limit
+- [ ] Include/import for YAML (compose resources), external vars files, secrets support
 
-2) Reporting and Analytics
-- Templated HTML reports with module-type specific summaries
-- Aggregate dashboard (success rate, durations, module usage)
-- Multi-run comparisons and trends
-- Export formats: JSON/CSV with stable schema; optional ELK/Grafana-friendly outputs
+## 2) Module Ecosystem (OT / ICS Focus)
+- [x] **v2.0-dev1:** Modbus TCP probe & diagnostic (`ot.probe.modbus`)
+- [x] **v2.0-dev1:** Siemens S7comm / COTP probe (`ot.probe.s7comm`)
+- [x] **v2.0-dev1:** BACnet/IP building automation probe (`ot.probe.bacnet`)
+- [x] **v2.0-dev1:** Industrial HMI & Web banner grabber (`net.probe.http_banner`)
+- [x] **v2.0-dev1:** Default OT weak credential auditor (`ot.audit.weak_creds`)
+- [x] **v2.0-dev1:** Assessment export to JSON/CSV (`util.transform.export`)
+- [ ] EtherNet/IP & CIP probe (`ot.probe.ethernetip`)
+- [ ] OPC UA Endpoint & security policy explorer (`ot.probe.opcua`)
+
+## 3) Reporting and Analytics
+- [x] JSON/CSV exporter module
+- [ ] Templated interactive HTML reports with OT asset classification
+- [ ] Aggregate multi-run trends & metrics dashboard
 
 3) Sessions and Lab Profiles
 - Docker lifecycle: logs, exec, file copy

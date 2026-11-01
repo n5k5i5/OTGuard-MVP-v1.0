@@ -49,3 +49,25 @@ def test_resource_runner_conditions_and_loops(tmp_path: Path):
 
     rid = runner.run(res_file)
     assert rid == metrics.latest_run_id()
+
+
+def test_resource_runner_v2_operators():
+    loader = ModuleLoader([Path("modules")])
+    runner = ResourceRunner(loader=loader)
+    ctx = {
+        "count": 42,
+        "name": "Siemens S7-1200 PLC",
+        "nested": {"active": True},
+    }
+
+    assert runner._eval_when({"gt": ["${count}", 10]}, ctx) is True
+    assert runner._eval_when({"lt": ["${count}", 50]}, ctx) is True
+    assert runner._eval_when({"regex": ["S7-\\d+", "${name}"]}, ctx) is True
+    assert runner._eval_when({"exists": "${nested.active}"}, ctx) is True
+    assert runner._eval_when({"not": {"lt": ["${count}", 20]}}, ctx) is True
+    assert runner._eval_when({
+        "all": [
+            {"gt": ["${count}", 40]},
+            {"regex": ["Siemens", "${name}"]}
+        ]
+    }, ctx) is True

@@ -1,0 +1,22 @@
+id: util.transform.export
+name: Assessment Results Exporter (JSON/CSV)
+version: 1.0.0
+type: aux
+platforms: [linux, windows, macos]
+safety_level: lab
+entry: module:ExportTransformModule
+inputs:
+  - name: data
+    type: dict
+    required: true
+  - name: format
+    type: str
+    default: "json"
+  - name: output_file
+    type: str
+    default: ".runs/assessment_export.json"
+outputs:
+  - name: exported_path
+    type: str
+  - name: record_count
+    type: int

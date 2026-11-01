@@ -1,39 +1,41 @@
-# Lab Security Framework v1.0
+# OTGuard (v2.0) - Getting Started Guide
 
-This repository is a safe, lab-first scaffold for a modular security testing framework.
-It ships with non-operational example modules and strong guardrails.
+> **Author & Architect:** `n5k5i5`  
+> OTGuard is a lab-first, safe security testing and automation framework focused on Operational Technology (OT), SCADA, and Industrial Control Systems (ICS).
 
 ## Prerequisites
 - Python 3.9+
-- Optional: virtualenv
+- Optional: Docker (for isolated lab profiles)
 
-## Install
+## Installation
 ```bash
+git clone https://github.com/n5k5i5/OTGuard.git
+cd OTGuard
 pip install -e .
 ```
 
-## First run
+## First Run
 ```bash
-# Accept ethical use agreement (pick language: en|tr|ru)
-framework init --agree --lang tr
+# Accept ethical use agreement (choose language: tr|en|ru)
+otguard init --agree --lang tr
 
 # Check version
-framework --version
+otguard --version
 
-# Explore modules
-framework modules list
+# Explore installed OT & IT modules
+otguard modules list
 
-# Execute example module (emulated)
-framework run examples.probe.portscan --with targets=127.0.0.1 --with ports='[22,80,443]'
+# Execute Modbus probe module (emulated by default)
+otguard run ot.probe.modbus --with targets=127.0.0.1 --with port=502
 
-# Run resource script
-framework resource run resources/examples/quick_probe.yaml
+# Run comprehensive OT assessment scenario
+otguard resource run resources/examples/ot_security_assessment.yaml
 
-# Generate and open report for last run
-framework report show --last
+# Generate and view report for the latest run
+otguard report show --last
 
 # Generate runs index
-framework report index
+otguard report index
 ```
 
 ## Resource scripts: loops and conditionals
